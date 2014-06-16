@@ -8,14 +8,14 @@ To learn more about the original data see Smartlabs README file — SMARTLAB_REA
 
 
 ###CONTENTS OF THIS REPO
-1. Raw data in *UCI_DATA* folder
-2. Tidy data set named *tidy_dataset.txt*
-3. CODEBOOK.md lists all variables and 
-4. *run_analysis.r* — a script with the exact steps I completed to go from raw to tidy data
+1. Tidy data set named *tidy_dataset.txt*
+2. CODEBOOK.md lists all variables and 
+3. *run_analysis.r* — a script with the exact steps I completed to go from raw to tidy data
 
 ###RAW DATA
 1. Raw Data was obtained from this link https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip 
-2. *Intertial Signals* folders were ignored for this analysis
+2. Unzip to your working directory
+3. Note: *Intertial Signals* folders were ignored for this analysis
 
 ###ABOUT THE SCRIPT 
 *run_analysis.r* contains a function to transform the following data sets into a single tidy data set:
