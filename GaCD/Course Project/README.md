@@ -1,4 +1,3 @@
-==================================================================
 ###TIDY Human Activity Recognition Using Smartphones Dataset (Version 1.0)
 ==================================================================
 A script to create a tidy version of data from Smartlab, which was written by Daniel Maurath to meet the requirements of a course Getting And Cleaning Data.
