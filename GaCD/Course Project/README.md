@@ -5,9 +5,18 @@ This is a script to create a tidy version (see definition in CODEBOOK.md) of dat
 The data linked to from the course website represent data collected from the accelerometers from the Samsung Galaxy S smartphone. A full description is available at the site where the data was obtained: http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones 
 
 To learn more about the original data see Smartlabs README file — SMARTLAB_README.txt
-
 ==================================================================
-###ABOUT THE SCRIPT
+###CONTENTS OF THIS REPO
+1. Raw data in *UCI_DATA* folder
+2. Tidy data set named *tidy_dataset.txt*
+3. CODEBOOK.md lists all variables and 
+4. *run_analysis.r* — a script with the exact steps I completed to go from raw to tidy data
+
+###RAW DATA
+1. Raw Data was obtained from this link https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip 
+2. *Intertial Signals* folders were ignored for this analysis
+
+###ABOUT THE SCRIPT 
 *run_analysis.r* contains a function to transform the following data sets into a single tidy data set:
 1. activity_labels.txt
 2. features.txt
@@ -18,12 +27,8 @@ To learn more about the original data see Smartlabs README file — SMARTLAB_REA
 7. y_test.txt
 8. y_train.txt
 
-###TO RETRIEVE THE DATA SETS ABOVE
-1. Download from  this link https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip 
-2. Unzip to directory
-
 ###USAGE
-1. Save the file "run_analysis.r" into the unzipped directory you created above
+1. Ensure the file "run_analysis.r" is in same directory as the 8 files above
 2. In your R console, type: 
 ```
 source("run_analysis.r")
