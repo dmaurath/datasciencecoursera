@@ -1,33 +1,24 @@
 ###SUMMARY
 - 180 rows (30 Subjects X 6 Activities)
 - 68 columns 
-- Each row represents one observation per activity with the average of 66 features.
-- Only features with "-mean" or "-std" were used in this analysis because I was only interested in the mean and standard deviation of the feature values, and not other various means or standard deviations.
-- First column is "subject", and is labelled as 1,2,3.....30
-- Second column is "activity", and can take following 6 values -
+- Each row represents one observation per activity for 66 feature means
+- For the features only the variables with *-mean* or *-std* were used in this analysis because I was only interested in the mean and standard deviation of the feature values, and not other various means or standard deviations.
+- First column is "Subject", and is labelled as 1 to 30
+- Second column is "Activity", and can take following 6 values
 	1. LAYING
 	2. SITTING
 	3. STANDING
 	4. WALKING
 	5. WALKING DOWNSTAIRS
 	6. WALKING UPSTAIRS
-
-Remaining 66 columns are means of each feature's means from the original data (i.e. the columns in original dataset containing *mean()* and *std()*). 
-
-For example, *tBodyAcc-mean()-X* is the average of all *tBodyAcc-mean()-X* means for a given activity. 
-
-###TIDY DATA RULES FOLLOWED IN THIS DATASET
-1. Each variable forms a column.
-2. Each observation forms a row.
-3. Each type of observational unit forms a table.
-
+- Columns 3 to 68 are means of each feature's means from the raw data (i.e. the columns in original dataset containing *mean()* and *std()*). For example, *tBodyAcc-mean()-X* is the average of all *tBodyAcc-mean()-X* means for a given activity.
 
 ###COLUMNS
 68 Columns
 
 1.  Subject
 
-2.  activityLabel
+2.  Activity
 
 3.  tBodyAcc-mean()-X
 
