@@ -1,5 +1,5 @@
 ==================================================================
-#TIDY Human Activity Recognition Using Smartphones Dataset (Version 1.0)
+###TIDY Human Activity Recognition Using Smartphones Dataset (Version 1.0)
 ==================================================================
 A script to create a tidy version of data from Smartlab, which was written by Daniel Maurath to meet the requirements of a course Getting And Cleaning Data.
 
@@ -9,10 +9,8 @@ The data linked to from the course website represent data collected from the acc
 
 http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones 
 
-
 ==================================================================
-
-#ABOUT THE SCRIPT
+###ABOUT THE SCRIPT
 *run_analysis.r* contains a function to transform the following data sets into a single tidy data set:
 +activity_labels.txt
 +features.txt
@@ -23,19 +21,18 @@ http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartpho
 +y_test.txt
 +y_train.txt
 
-##TO RETRIEVE THE DATA SETS ABOVE
+###TO RETRIEVE THE DATA SETS ABOVE
 +Download - https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip 
 +Unzip to directory
 
-#USE
+###USAGE
 1. Save the file "run_analysis.r" into the unzipped directory you created above
 2. In your R console, type: 
 ```
 source("run_analysis.r")
-
 ```
 
-#EXAMPLE OUTPUT
+###EXAMPLE OUTPUT
 The file will output a tidy data set with 68 columns and 180 rows. Here is an example output of how the dataset should look with the columns 4 to 68 removed for easier viewing. Columns 4 to 68 contain more feature averages. 
 
 | Subject | Activity |  "tBodyAcc-mean()-X" | Feature-Avgerages 4:68...
