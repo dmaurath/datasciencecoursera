@@ -1,4 +1,7 @@
 run_analysis<-function(){
+        library(plyr) ##need for join()
+        library(reshape2)##need for melt() and dcast()
+        
         #Read in subject IDs for train and test set
         subject_test <- read.table("subject_test.txt", col.names=c("Subject"))
         subject_train <- read.table("subject_train.txt", col.names=c("Subject"))
@@ -30,31 +33,30 @@ run_analysis<-function(){
         activities_train <- read.table("Y_train.txt")
         #Combine training and test activities into single data frame and rename column to "activity" from "V1"
         activities_all <- rbind(activities_test, activities_train)
-        colnames(activities_all) <- "activity"
+        colnames(activities_all) <- "activityLabel"
         ## Recode activity values as descriptive names using the activity labels file 
-        activity_labels<-read.table("activity_labels.txt",sep=" ",col.names=c("activity","activityLabel"))
-        activities_all<-join(activities_all,activity_labels,by="activity",type="left")
+        activity_labels<-read.table("activity_labels.txt",sep=" ",col.names=c("activityLabel","Activity"))
+        activities_all<-join(activities_all,activity_labels,by="activityLabel",type="left")
         #Drop activity numbers
-        activities_all$activity <- NULL
+        activities_all$activityLabel <- NULL
         
         #Combine Actitivies, Subjects and Features all into one data frame
         all_df <- cbind(features_data, activities_all, subject_all)
         
         #Melt data frame for reshaping
-        tdf <- melt(all_df, id=c("Subject", "activityLabel"), measure.vars=feature_list)
+        tdf <- melt(all_df, id=c("Subject", "Activity"), measure.vars=feature_list)
         
         #Reshape into tidy data frame by mean using the reshape2 package
-        tdf <- dcast(tdf, activityLabel + Subject ~ variable, mean)
+        tdf <- dcast(tdf, Activity + Subject ~ variable, mean)
         
         #Reorder by Subject then Activity
-        tdf <- tdf[order(tdf$Subject, tdf$activityLabel),]
+        tdf <- tdf[order(tdf$Subject, tdf$Activity),]
         
         #Reindex Rows and move Subject to Column 1
         rownames(tdf) <- 1:nrow(tdf)
         tdf <- tdf[,c(2,1,3:68)]
         
         #Output file
-        f = "tidy_datset.txt"
-        write.table(tdf,f)
+        write.table(tdf,file="tidy_datset.txt")
         
 }
