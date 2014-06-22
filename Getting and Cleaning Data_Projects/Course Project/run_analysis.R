@@ -2,6 +2,16 @@ run_analysis<-function(){
         library(plyr) ##need for join()
         library(reshape2)##need for melt() and dcast()
         
+        #FOLLOWING FILES SHOULD BE IN WORKING DIRECTORY
+        #1. activity_labels.txt 
+        #2. features.txt 
+        #3. subject_test.txt 
+        #4. subject_train.txt 
+        #5. X_test.txt 
+        #6. X_train.txt 
+        #7. y_test.txt 
+        #8. y_train.txt
+
         #Read in subject IDs for train and test set
         subject_test <- read.table("subject_test.txt", col.names=c("Subject"))
         subject_train <- read.table("subject_train.txt", col.names=c("Subject"))
