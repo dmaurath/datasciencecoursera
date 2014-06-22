@@ -57,6 +57,6 @@ run_analysis<-function(){
         tdf <- tdf[,c(2,1,3:68)]
         
         #Output file
-        write.table(tdf,file="tidy_datset.txt")
+        write.table(tdf,file="tidy_dataset.txt")
         
 }
