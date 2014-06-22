@@ -11,12 +11,13 @@ You can also learn more about the original data in the Smartlabs README file, wh
 1. Tidy data set named *tidy_dataset.txt*
 2. CODEBOOK.md lists all variables and 
 3. *run_analysis.r* — a script with the exact steps I completed to go from raw to tidy data
+4. Original README for the raw data
+
 
 ###RAW DATA
 1. Raw Data was obtained from this link https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip 
 2. Unzip to your working directory
 3. Note: *Intertial Signals* folders were ignored for this analysis
-4. Original README for the raw data
 
 ###ABOUT THE SCRIPT 
 *run_analysis.r* contains a function to transform the following data sets into a single tidy data set:
