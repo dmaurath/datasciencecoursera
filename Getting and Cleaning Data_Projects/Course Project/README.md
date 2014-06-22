@@ -16,6 +16,7 @@ You can also learn more about the original data in the Smartlabs README file, wh
 1. Raw Data was obtained from this link https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip 
 2. Unzip to your working directory
 3. Note: *Intertial Signals* folders were ignored for this analysis
+4. Original README for the raw data
 
 ###ABOUT THE SCRIPT 
 *run_analysis.r* contains a function to transform the following data sets into a single tidy data set:
