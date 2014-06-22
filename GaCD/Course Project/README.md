@@ -2,20 +2,20 @@
 ==================================================================
 This is a script to create a tidy version (see definition in CODEBOOK.md) of data from Smartlab. The script was written by Daniel Maurath as a project for the course Getting And Cleaning Data.
 
-The data linked to from the course website represent data collected from the accelerometers from the Samsung Galaxy S smartphone. A full description is available at the site where the data was obtained: http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones 
+Data was collected from the accelerometers in Samsung Galaxy S smartphone. A full description is available at the site where the data was obtained: http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones 
 
-To learn more about the original data see Smartlabs README file — SMARTLAB_README.txt
+You can also learn more about the original data in the Smartlabs README file, which I have included in this repo — SMARTLAB_README.txt
 
 
 ###CONTENTS OF THIS REPO
-1. Raw data in *UCI_DATA* folder
-2. Tidy data set named *tidy_dataset.txt*
-3. CODEBOOK.md lists all variables and 
-4. *run_analysis.r* — a script with the exact steps I completed to go from raw to tidy data
+1. Tidy data set named *tidy_dataset.txt*
+2. CODEBOOK.md lists all variables and 
+3. *run_analysis.r* — a script with the exact steps I completed to go from raw to tidy data
 
 ###RAW DATA
 1. Raw Data was obtained from this link https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip 
-2. *Intertial Signals* folders were ignored for this analysis
+2. Unzip to your working directory
+3. Note: *Intertial Signals* folders were ignored for this analysis
 
 ###ABOUT THE SCRIPT 
 *run_analysis.r* contains a function to transform the following data sets into a single tidy data set:
