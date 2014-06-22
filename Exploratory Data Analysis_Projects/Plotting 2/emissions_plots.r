@@ -186,7 +186,7 @@ plot_6 <- function(){
         ##Define point size, shape, and color
         ##Add axis labels and title
         ##Output plot to file
-        ggplot(data=plot_6, aes(x=year, y=Change, group=City, color=City, sub="Baltimore, MD vs. Los Angeles, CA")) + geom_line() + geom_point( size=4, shape=21, fill="white") + xlab("Year") + ylab("Change in Emissions (tons)") + ggtitle("Motor Vehicle PM2.5 Emissions Changes: Baltimore vs. LA")
+        ggplot(data=plot_6, aes(x=year, y=Change, group=City, color=City)) + geom_line() + geom_point( size=4, shape=21, fill="white") + xlab("Year") + ylab("Change in Emissions (tons)") + ggtitle("Motor Vehicle PM2.5 Emissions Changes: Baltimore vs. LA")
         ggsave(file="plot_6.png")
         
 }
