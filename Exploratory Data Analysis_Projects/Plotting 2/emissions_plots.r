@@ -1,20 +1,14 @@
-emissions_plot <- function(){
-        library(plyr) 
-        library(reshape2)
-        
-        NEI <- readRDS("summarySCC_PM25.rds")
-        SCC <- readRDS("Source_Classification_Code.rds")
-        df <- subset(SCC, select = c("SCC", "Short.Name"))
-        NEI_SCC <- merge(NEI, df, by.x="SCC", by.y="SCC", all=TRUE)
-        
-        
-        
+##Before running the function, place the following files in the same directory as this script
+# SCC_PM25.rds
+# Source_Classification_Code.rds
+
+plot_1 <- function(){
         ##PLOT 1
         ##Required packages
         library(plyr) 
         library(reshape2)
         ##Read in data and merge
-        NEI <- readRDS("summarySCC_PM25.rds")
+        #NEI <- readRDS("summarySCC_PM25.rds")
         SCC <- readRDS("Source_Classification_Code.rds")
         df <- subset(SCC, select = c("SCC", "Short.Name"))
         NEI_SCC <- merge(NEI, df, by.x="SCC", by.y="SCC", all=TRUE)
@@ -33,12 +27,15 @@ emissions_plot <- function(){
         plot(plot_1$Year,plot_1$Emissions, main="Total US PM2.5 Emissions", "b", xlab="Year", ylab="Emissions (thousands of tons)",xaxt="n")
         #Customize X-axis labels
         axis(side=1, at=c("1999", "2002", "2005", "2008"))
+        #Set margins
+        par(mar=c(5.1,5.1,4.1,2.1))
         #Output plot to PNG
         dev.copy(png, file="plot_1.png", width=720, height=480)
         dev.off()
-        
-        
-        ##PLOT 2
+}
+
+
+plot_2 <- function(){
         ##Required packages
         library(plyr) 
         library(reshape2)
@@ -64,13 +61,14 @@ emissions_plot <- function(){
         plot(plot_2$Year,plot_2$Emissions, main="Total Baltimore PM2.5 Emissions", "b", xlab="Year", ylab="Emissions (thousand tons)",xaxt="n")
         #Create custom axis
         axis(side=1, at=c("1999", "2002", "2005", "2008"))
+        #Set margins
+        par(mar=c(5.1,4.1,5.1,2.1))
         #Output to PNG file
         dev.copy(png, file="plot_2.png", width=720, height=480)
         dev.off()
-    
+}   
         
-        
-        ##PLOT 3
+plot_3 <- function(){ 
         ##Required packages
         library(plyr) 
         library(reshape2)
@@ -95,11 +93,11 @@ emissions_plot <- function(){
         ##Define point size, shape, and color
         ##Add axis labels and title
         ##Output plot to file
-        ggplot(data=plot_3, aes(x=year, y=Emissions, group=type, color=type)) + geom_line() + geom_point( size=4, shape=21, fill="white") + xlab("Year") + ylab("Emissions (tons)") + ggtitle("Baltimore Emissions by Type and Year")
+        ggplot(data=plot_3, aes(x=year, y=Emissions, group=type, color=type)) + geom_line() + geom_point( size=4, shape=21, fill="white") + xlab("Year") + ylab("Emissions (tons)") + ggtitle("Baltimore PM2.5 Emissions by Type and Year")
         ggsave(file="plot_3.png")
-        
-        
-        ##PLOT 4
+}
+
+plot_4 <- function(){ 
         ##Required packages
         library(plyr) 
         library(reshape2)
@@ -110,11 +108,11 @@ emissions_plot <- function(){
         df <- subset(SCC, select = c("SCC", "Short.Name"))
         NEI_SCC <- merge(NEI, df, by.x="SCC", by.y="SCC", all=TRUE)
         
-        #Subset data where Short.Name—which indicates emissions source—contains 'Coal'
+        #Subset data where Short.Name—which indicates emissions source—contains 'Coal'. I made a decision to use a strict definition fo Coal to capture the two Coal related categories listed here under Fuel Combustion:http://www.epa.gov/air/emissions/basic.htm
         plot_4 <- subset(NEI_SCC, grepl('Coal',NEI_SCC$Short.Name, fixed=TRUE), c("Emissions", "year","type", "Short.Name"))
         #Convert Emissions unit to "thousands of tons"
         plot_4$Emissions <- plot_4$Emissions/1000
-        #Aggregate data by summin Emissions for each yea
+        #Aggregate data by summin Emissions for each year
         plot_4 <- aggregate(Emissions ~ year, plot_4, sum)
         #Plot data with ggplot2
         ##X-Axis: Year
@@ -124,12 +122,11 @@ emissions_plot <- function(){
         ##Define point size, shape, and color
         ##Add axis labels and title
         ##Output plot to file
-        ggplot(data=plot_4, aes(x=year, y=Emissions)) + geom_line() + geom_point( size=4, shape=21, fill="white") + xlab("Year") + ylab("Emissions (thousands of tons)") + ggtitle("Total United States Coal Emissions")
+        ggplot(data=plot_4, aes(x=year, y=Emissions)) + geom_line() + geom_point( size=4, shape=21, fill="white") + xlab("Year") + ylab("Emissions (thousands of tons)") + ggtitle("Total United States PM2.5 Coal Emissions")
         ggsave(file="plot_4.png")
-        
-        
-        
-        ##PLOT 5
+}     
+
+plot_5 <- function(){ 
         ##Required packages
         library(plyr) 
         library(reshape2)
@@ -140,7 +137,7 @@ emissions_plot <- function(){
         df <- subset(SCC, select = c("SCC", "Short.Name"))
         NEI_SCC <- merge(NEI, df, by.x="SCC", by.y="SCC", all=TRUE)
         
-        #Subset data for Balitmore and emissions that occured on the road. For this analysis, "ON-ROAD" was used as an indicator of motor vehicle emissions. 
+        #Subset data for Balitmore and emissions that occured on the road. For this analysis, the type ON-ROAD was used as an indicator of motor vehicle emissions. 
         plot_5 <- subset(NEI_SCC, fips == "24510" & type =="ON-ROAD", c("Emissions", "year","type"))
         #Aggregate data by year
         plot_5 <- aggregate(Emissions ~ year, plot_5, sum)
@@ -152,11 +149,11 @@ emissions_plot <- function(){
         ##Define point size, shape, and color
         ##Add axis labels and title
         ##Output plot to file
-        ggplot(data=plot_5, aes(x=year, y=Emissions)) + geom_line() + geom_point( size=4, shape=21, fill="white") + xlab("Year") + ylab("Emissions (tons)") + ggtitle("Motor Vehicle Emissions in Baltimore")
+        ggplot(data=plot_5, aes(x=year, y=Emissions)) + geom_line() + geom_point( size=4, shape=21, fill="white") + xlab("Year") + ylab("Emissions (tons)") + ggtitle("Motor Vehicle PM2.5 Emissions in Baltimore")
         ggsave(file="plot_5.png")
-        
-        
-        #PLOT 6
+}
+
+plot_6 <- function(){ 
         ##Required packages
         library(plyr) 
         library(reshape2)
@@ -189,7 +186,7 @@ emissions_plot <- function(){
         ##Define point size, shape, and color
         ##Add axis labels and title
         ##Output plot to file
-        ggplot(data=plot_6, aes(x=year, y=Change, group=City, color=City, sub="Baltimore, MD vs. Los Angeles, CA")) + geom_line() + geom_point( size=4, shape=21, fill="white") + xlab("Year") + ylab("Change in Emissions (tons)") + ggtitle("Motor Vehicle Emissions Changes: Baltimore vs. LA")
+        ggplot(data=plot_6, aes(x=year, y=Change, group=City, color=City, sub="Baltimore, MD vs. Los Angeles, CA")) + geom_line() + geom_point( size=4, shape=21, fill="white") + xlab("Year") + ylab("Change in Emissions (tons)") + ggtitle("Motor Vehicle PM2.5 Emissions Changes: Baltimore vs. LA")
         ggsave(file="plot_6.png")
         
 }
