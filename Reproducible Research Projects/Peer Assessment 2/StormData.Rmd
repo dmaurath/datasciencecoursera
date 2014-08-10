@@ -1,0 +1,489 @@
+---
+title: "Health and Economic Implications of Storms"
+author: "Daniel Maurath"
+date: "July, 2014"
+---
+
+
+#### About
+This was the second project for the **Reproducible Research** course in Coursera's Data Science specialization track. The purpose of the project was to determine which storm event(s) had the most significant economic and health effects.
+
+## Synopsis
+Severe weather has serious economic and health impacts, causing property damage, crop damage, injury and even death. The purpose of this assignment was to determine which severe weather types have the greatest economic and health effects. Economic effects were operationalized as the degree of property and crop damage. Health effects were operationalized as number of fatalities and injuries. 
+
+I analyzed data taken from the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. The data was far from tidy and needed some initial preprocessing prior to the analysis. 
+
+The report begins with initial data processing followed by a subsequent analysis with the most important results plotted (no more than three plots were permitted for this assignment). I end the report with results and briefly discuss their implications. 
+
+In short, results revealed that hurricanes have the most significant economic impact, while tornadoes are the most deadly. 
+
+## R Session Information
+
+### Additional Libraries and Session Environment
+```{r}
+library(ggplot2)
+library(plyr)
+library(reshape2)
+library(knitr)
+
+sessionInfo()
+```
+
+
+## Retrieve Data
+Data was retrieved via  [Coursera's Cloudfont Link](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2) and unzipped into the working directory. Uncomment the code below to download and unzip the data. File will download and save to current working directory. 
+
+```{r cache = TRUE}
+#URL <- "http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+#destfile <- "stormData.csv.bz2"
+#download.file(URL, destfile)
+
+sData_complete <- read.csv(bzfile("stormData.csv.bz2"), strip.white = TRUE)
+```
+
+## Data Processing
+Event data prior to 1996 was incomplete; it only contained Tornado, Thunderstorm, Wind and Hail event types, while data in 1996 and after contains all 48 event types that are in current use. Thus, this subset of data was considered best for analysis because event types were most evenly distributed.
+
+Before subsetting by date, I reformatted the date column to remove hours and minutes, which were all zeros in this data set and inconsequential for the present analysis.
+
+```{r}
+sData_complete$BGN_DATE <- as.Date(sData_complete$BGN_DATE, format = "%m/%d/%Y")
+```
+
+Next, I subsetted the data first by only the variables that would provide information on health or economic consequences of storms, and then subsetted the data again to retrieve only those events that occurred in 1996 or later. 
+
+```{r}
+sData <- subset(sData_complete, select = c("EVTYPE","FATALITIES", "INJURIES", "PROPDMG", "PROPDMGEXP", "CROPDMG", "CROPDMGEXP", "BGN_DATE", "REMARKS"))
+
+sData <- subset(sData, sData$BGN_DATE > as.Date("1995-12-31"))
+```
+
+## Find NA Values
+No missing values so moving on to examine data integrity. 
+
+``` {r}
+countNAs <- function(dataframe) {
+        for (colName in colnames(dataframe)) {
+                NAcount <- 0
+                NAcount < as.numeric(sum(is.na(dataframe[,colName])))
+                if(NAcount > 0) {
+                        message(colName, ":", NAcount, "missing values")
+                        } else {
+                        message(colName, ":", "No missing values")
+                        }
+                }
+}
+countNAs(sData)
+```
+
+## Property and Crop Damage Variables
+To determine economic consequences of storms, I needed to calculate the total amount of damage in US Dollars. The data provided one column indicating the amount and another indicating the unit: "K" for thousands,"M" for millions, or "B" for billions. I needed to combine these two columns into a single column representing the total cost dollars for each observation.
+
+First, I converted the unit character into its numeric equivalent(e.g. "K" became 1000).
+
+```{r}
+nested_ifelse <- function(x){
+        x <- as.character(x)
+        ifelse (x == "B", as.numeric(1000000000),
+        ifelse(x == "M", as.numeric(1000000), 
+        ifelse(x == "K", as.numeric(1000), 0)))
+}
+sData$PROPDMGEXP <- toupper(sData$PROPDMGEXP)
+sData$PROPDMGEXP <- nested_ifelse(sData$PROPDMGEXP)
+```
+
+Next, I created a new column PROPDMGDOL that was the product of  the unit column and amount column.This is the total amount of property damage in US Dollars. 
+
+```{r}
+sData$PROPDMGDOL <- as.numeric(sData$PROPDMG*sData$PROPDMGEXP)
+```
+
+Then I did the same for crop damage, creating a new variable CROPDMGDOL that became the total amount of crop damage in US Dollars.
+
+```{r}
+sData$CROPDMGEXP <- toupper(sData$CROPDMGEXP)
+sData$CROPDMGEXP <- nested_ifelse(sData$CROPDMGEXP)
+sData$CROPDMGDOL <- as.numeric(sData$CROPDMG*sData$CROPDMGEXP)
+```
+
+### Outlier Investigation
+Now that I have a dollar representation of the property and crop damage, I want to check for any outliers due to errors in data entry.
+
+Mean and median are too low for traditional outlier analysis using a Z-test. Instead I looked for individual values that comprised 5% or more of the data. There were two data points that fit this cutoff.
+
+```{r}
+summary(sData$PROPDMGDOL)
+
+pmean <- mean(sData$PROPDMGDOL)
+psum <- sum(sData$PROPDMGDOL)
+prop_outliers <- sData[sData$PROPDMGDOL/psum > 0.05, ]
+
+```
+
+I pull out the remarks for the first data point 
+```{r}
+prop_outliers[1,9]
+```
+Hurricane Katrina. Looks good.
+
+I pull out the remarks for the second data point 
+```{r}
+prop_outliers[2,9]
+```
+Remarks mention only millions yet damage is in the billions. Looks like a B was used instead of an M, so I will adjust the number. 
+
+```{r}
+sData[sData$PROPDMGDOL == 1.15e+11,c("PROPDMGDOL")] <- 70000000
+```
+
+
+No outliers in the crop 
+```{r}
+summary(sData$CROPDMGDOL)
+cmean <- mean(sData$CROPDMGDOL)
+csum <- sum(sData$CROPDMGDOL)
+crop_outliers <-  sData[sData$CROPDMGDOL/csum > 0.05, ]
+nrow(crop_outliers) > 0 
+```
+
+With all outliers fixed, I calculated the total damage in US dollars and added it to a new variable.
+```{r}
+sData$TOTALDMGDOL <- sData$CROPDMGDOL + sData$PROPDMGDOL
+```
+
+## Event Type Data
+This data contained a total of 516 unique event types, which is much higher than the standard 48 event types outlined in the  NOAA [directive](http://www.ncdc.noaa.gov/stormevents/pd01016005curr.pdf).
+
+```{r}
+sData$EVTYPE <- toupper(sData$EVTYPE)
+length(unique(sData$EVTYPE))
+```
+
+To aid in the EVTYPE cleanup I will create a couple utility functions that will monitor my progress.
+
+- **match** returns all the event types that match the pattern. 
+- **count_unique** returns number of remaining unmatched EVTYPES
+- **list_unique** lists remaining unmatched EVTYPES. Uses a txt file import of the canonical 48 event types.
+
+#### 48 Events
+The list of 48 events used by the NOAA since 1996. 
+
+```{r}
+EVENTS <- read.table("48events.txt",
+               col.names=c("EVTYPE"), 
+               sep="\n",
+               strip.white=TRUE)
+print(EVENTS)
+```
+
+```{r}
+match <- function(pattern) {
+        pattern <- toupper(pattern)
+        unique(sData$EVTYPE[grepl(pattern, sData$EVTYPE)])
+}
+
+count_unique <- function() {
+        length(unique(sData$EVTYPE))
+}
+
+EVENTS <- read.table("48events.txt",
+               col.names=c("EVTYPE"), 
+               sep="\n",
+               strip.white=TRUE)
+
+list_unique <- function(col) {
+                y <- toupper(EVENTS$EVTYPE)
+                not_standard <- setdiff(col,y)
+                l <- length(not_standard)
+                message("The following ",l, " values are not in the standard 48 EVTYPES:")
+                not_standard
+               }
+
+
+```
+
+For example, I'll return all the values with TSTM.
+
+```{r}
+match("TSTM")
+```
+
+But before I can categorize TSTM Events, I need more information. TSTM could be Thunder Storm or Tropical Storm, but which is it? Let's look at the data. 
+
+Here I subset the original data to regain the STATE variable. I pull out all EVTYPES with TSTM then sum them by state. If it means Tropical Storm, then all the top states should be along the southeastern and eastern coast of the US where most Tropical storms hit according to the [NOAA](http://www.nhc.noaa.gov/pdf/nws-nhc-6.pdf). KS, OK, OH, MO, IL, TN, AR, and PA are all in the top 10, without any sign of Florida, a popular landing spot for Tropical Storms. Looks like TSTM means Thunderstorm. A second quick test shows other non-Tropical Storm states like Idaho, Oregon and California.
+
+```{r}
+tstm <- subset(sData_complete,select = c("EVTYPE","STATE"))
+tstm <- tstm[grepl("TSTM", tstm$EVTYPE),]
+tstm <- as.data.frame(table(tstm$EVTYPE, tstm$STATE))
+colnames(tstm) <- c("EVTYPE", "STATE","FREQ")                    
+tstm <- tstm[order(-tstm$FREQ),]
+head(tstm, 10)
+head(tstm[tstm$EVTYPE=="TSTM WIND/HAIL",])
+
+```
+
+Change All to THUNDERSTORM WIND and recount event types. 
+```{r}
+
+sData$EVTYPE[grepl("MARINE TSTM WIND", sData$EVTYPE)]<-"MARINE THUNDERSTORM WIND"
+sData$EVTYPE[grepl("NON-TSTM WIND|NON TSTM WIND", sData$EVTYPE)]<-"STRONG WIND"
+sData$EVTYPE[grepl("TSTM WIND", sData$EVTYPE)]<-"THUNDERSTORM WIND"
+
+```
+
+### Organization of Clean Up
+To stay organized, I started the EVTYPE clean up by matching events in alphabetical order. I began with trying to match Astronomical Low Tide, and ended with Wildfire. 
+
+As I categorized EVTYPES during the second phase, I would add them where they belonged, instead of writing another line of code. So all EVTYPES that matched  EXCESSIVE COLD were added to the single line instead of being renamed as I categorized them. 
+
+I did this...
+```
+sData$EVTYPE[grepl("EXTREME COLD|RECORD COOL|HYPOTHERMIA/EXPOSURE|HARD FREEZE|AGRICULTURAL FREEZE|UNSEASONAL LOW TEMP|LATE FREEZE|EXCESSIVE COLD|PROLONG COLD|UNUSUALLY COLD|EXTREME WINDCHILL|EXTREME WINDCHILL TEMPERATURES|EXTREME WIND CHILL|UNSEASONABLE COLD|EXTREME COLD/WIND CHILL|RECORD COLD|EXTENDED COLD|UNSEASONABLY COLD|RECORD  COLD|UNSEASONABLY COOL|EXTENDED COLD", sData$EVTYPE)]<-"EXTREME COLD/WIND CHILL"
+```
+instead of this...
+```
+sData$EVTYPE[grepl("EXTREME COLD", sData$EVTYPE)]<-"EXTREME COLD/WIND CHILL"
+sData$EVTYPE[grepl("RECORD COOL", sData$EVTYPE)]<-"EXTREME COLD/WIND CHILL"
+sData$EVTYPE[grepl("HYPOTHERMIA/EXPOSURE", sData$EVTYPE)]<-"EXTREME COLD/WIND CHILL"
+etc.
+```
+
+If an event type matching was non-obvious, I supported it with an appropriate citation from either a web source or the remarks column. 
+
+### Clean Up
+```{r}
+match("tide")
+```
+Not sure where blow out tide fits in so I Google government sites using the following query:
+```
+blow out tide site:.edu
+```
+According to this [government source](http://www.dec.ny.gov/lands/59228.html), Blow Out Tides are abnormally low tides. I will count them as Astronomical Low Tides as per this definition, 
+>"Abnormal, or extremely low tide levels, that result in deaths or injuries, watercraft damage, or significant economic impact due to low water levels. Astronomical low tides are made more extreme when strong winds produce a considerable seaward transport of water, resulting in previously submerged, non-hazardous objects become hazardous or exposed."
+
+There is not a category for Astronomical High Tides, but according to the [directive](http://www.ncdc.noaa.gov/stormevents/pd01016005curr.pdf), Astronomical High Tides should be considered Storm Surge/Tide Events, 
+>"Basically, storm tide is the sum of storm surge and astronomical tide."
+
+```{r}
+sData$EVTYPE[grepl("BLOW-OUT TIDE", sData$EVTYPE)]<-"ASTRONOMICAL LOW TIDE"
+sData$EVTYPE[grepl("ASTRONOMICAL HIGH TIDE", sData$EVTYPE)]<-"STORM SURGE/TIDE"
+```
+
+Continue replacing values.
+```{r}
+sData$EVTYPE[grepl("BLIZZ", sData$EVTYPE)]<-"BLIZZARD"
+
+sData$EVTYPE[grepl("COASTAL EROSION|COASTAL F|EROSION/CSTL FLOOD|CSTL FLOODING/EROSION|COASTALFLOOD|COASTAL  FLOODING/EROSION", sData$EVTYPE)]<-"COASTAL FLOOD"
+
+sData$EVTYPE[grepl("EXTREME COLD|RECORD COOL|HYPOTHERMIA/EXPOSURE|HARD FREEZE|AGRICULTURAL FREEZE|UNSEASONAL LOW TEMP|LATE FREEZE|EXCESSIVE COLD|PROLONG COLD|UNUSUALLY COLD|EXTREME WINDCHILL|EXTREME WINDCHILL TEMPERATURES|EXTREME WIND CHILL|UNSEASONABLE COLD|EXTREME COLD/WIND CHILL|RECORD COLD|EXTENDED COLD|UNSEASONABLY COLD|RECORD  COLD|UNSEASONABLY COOL|EXTENDED COLD", sData$EVTYPE)]<-"EXTREME COLD/WIND CHILL"
+
+sData$EVTYPE[grepl("COLD WIND CHILL TEMPERATURES|^WIND CHILL$|COOL SPELL|COLD WEATHER|BITTER WIND CHILL|BITTER WIND CHILL TEMPERATURES|^COLD$|COLD TEMPERATURE", sData$EVTYPE)]<-"COLD/WIND CHILL"
+```
+
+I used the [directive](http://www.ncdc.noaa.gov/stormevents/pd01016005curr.pdf) as support for categorizing Mudslides and Landslides as Debris Flow:
+
+>The event name of Landslide was renamed to Debris Flow (cover page)
+
+>When events such as mudslides or lahars are caused primarily by volcanic activity, or 
+when rainfall is not the primary cause, then document them as a Debris Flow (page 33)
+
+```{r}
+sData$EVTYPE[grepl("MUDSLIDE|LANDSLUMP|MUDSLIDE/LANDSLIDE|LANDSLIDE|ROCK SLIDE|MUD SLIDE", sData$EVTYPE)]<-"DEBRIS FLOW"
+```
+
+Continued replacing values..
+```{r}
+sData$EVTYPE[grepl("DENSE FOG|^FOG$", sData$EVTYPE)] <- "DENSE FOG"
+sData$EVTYPE[grepl("ICE FOG", sData$EVTYPE)]<-"FREEZING FOG"
+
+sData$EVTYPE[grepl("SMOKE", sData$EVTYPE)]<-"DENSE SMOKE"
+
+sData$EVTYPE[grepl("DROUGHT|DRY|RECORD LOW RAINFALL|DRIEST MONTH|SNOW DROUGHT", sData$EVTYPE)]<-"DROUGHT"
+```
+
+```{r}
+match("dust")
+```
+
+Remarks reveals that Land spout is another term for a Dust Devil.
+```{r cache = TRUE}
+sData[sData$EVTYPE=="LANDSPOUT",c("REMARKS")]
+sData$EVTYPE[grepl("DUST DEVEL|LANDSPOUT", sData$EVTYPE)]<-"DUST DEVIL"
+sData$EVTYPE[grepl("SAHARAN DUST|BLOWING DUST", sData$EVTYPE)]<-"DUST STORM"
+```
+
+Continue matching and replacing.
+```{r}
+sData$EVTYPE[grepl("HEATBURST|RECORD TEMPERATURE|RECORD HEAT|HEAT WAVE|RECORD HIGH|HOT SPELL|UNSEASONABLY HOT|HOT WEATHER|HYPERTHERMIA/EXPOSURE|TEMPERATURE RECORD", sData$EVTYPE)]<-"EXCESSIVE HEAT"
+
+sData$EVTYPE[grepl("FLASH|DAM BREAK", sData$EVTYPE)]<-"FLASH FLOOD"
+```
+
+Unsure where Flood/Strong Wind fits in, I consult the Remarks column, which reveals that its a lake flood. 
+```{r cache = TRUE}
+sData[sData$EVTYPE=="FLOOD/STRONG WIND", c("REMARKS")]
+
+sData$EVTYPE[grepl("FLOOD/STRONG WIND", sData$EVTYPE)]<-"LAKESHORE FLOOD"
+```
+
+Continue replacing. 
+```{r}
+sData$EVTYPE[grepl("STREET FLOODING|FLD|TIDAL FLOODING|MINOR FLOODING|RIVER FLOOD|URBAN/STREET FLOODING|URBAN FLOOD|RIVER FLOODING|SNOWMELT FLOODING|HIGH WATER", sData$EVTYPE)]<-"FLOOD"
+
+sData$EVTYPE[grepl("FROST|COLD AND FROST|FIRST FROST|DAMAGING FREEZE|^FREEZE$", sData$EVTYPE)]<-"FROST/FREEZE"
+
+sData$EVTYPE[grepl("FUNNEL CLOUDS|WALL CLOUD", sData$EVTYPE)]<-"FUNNEL CLOUD"
+
+sData$EVTYPE[grepl("^HAIL$|HAIL/WIND|SMALL HAIL|ICE PELLETS|0.75|GUSTY WIND/HAIL|LATE SEASON HAIL|NON SEVERE HAIL", sData$EVTYPE)]<-"HAIL"
+
+sData$EVTYPE[grepl("WARM", sData$EVTYPE)]<-"HEAT"
+
+sData$EVTYPE[grepl("RAIN|WET|RAIN DAMAGE|HEAVY RAIN/WIND|HEAVY RAIN AND WIND|GUSTY WIND/HVY RAIN|RAIN (HEAVY)|EXCESSIVE RAIN|UNSEASONAL RAIN|EARLY RAIN|PROLONGED RAIN|MONTHLY RAINFALL|EXCESSIVE RAINFALL|RECORD PRECIPITATION|HEAVY RAINFALL|RECORD RAINFALL|LOCALLY HEAVY RAIN|TORRENTIAL RAINFALL|HEAVY RAIN EFFECTS|TSTM HEAVY RAIN",sData$EVTYPE)]<-"HEAVY RAIN"
+
+sData$EVTYPE[grepl("FREEZING RAIN|RAIN/SNOW|FREEZING DRIZZLE|SLEET STORM|MIXED PRECIPITATION|SLEET/FREEZING RAIN|FREEZING RAIN/SLEET|MIXED PRECIP|FREEZING SPRAY|HEAVY PRECIPITATION|LIGHT FREEZING RAIN|SNOW/FREEZING RAIN|SNOW/SLEET|SNOW AND SLEET|LIGHT SNOW/FREEZING PRECIP",sData$EVTYPE)]<-"SLEET"
+
+sData$EVTYPE[grepl("ICE JAM|BLACK ICE|^ICE$|ICE ROADS|PATCHY ICE|ICE ON ROAD|ICY ROADS|SNOW AND ICE|SNOW/ICE|FALLING SNOW/ICE|ICE/SNOW|GLAZE|THUNDERSNOW SHOWER",sData$EVTYPE)]<-"ICE STORM"
+
+sData$EVTYPE[grepl("LAKE EFFECT SNOW",sData$EVTYPE)]<-"LAKE-EFFECT SNOW"
+
+sData$EVTYPE[grepl("HEAVY SNOW|MOUNTAIN SNOWS|SEASONAL SNOWFALL|RECORD MAY SNOW|RECORD WINTER SNOW|^SNOW$|LATE SNOW|COLD AND SNOW|SNOW SQUALL|HEAVY SNOW SQUALLS|SNOW SQUALLS|RECORD SNOWFALL|LIGHT SNOW|MODERATE SNOW|MODERATE SNOWFALL|EARLY SNOWFALL|EXCESSIVE SNOW|MONTHLY SNOWFALL|RECORD SNOW|SNOW/BLOWING SNOW|BLOWING SNOW|LATE SEASON SNOW|METRO STORM, MAY 26|SNOW ADVISORY|UNUSUALLY LATE SNOW|ACCUMULATED SNOWFALL|SNOW SHOWERS|FIRST SNOW|SNOW ACCUMULATION|DRIFTING SNOW|LATE-SEASON SNOWFALL",sData$EVTYPE)]<-"HEAVY SNOW"
+
+sData$EVTYPE[grepl("SURF|BEACH EROSION|SWELLS",sData$EVTYPE)]<-"HIGH SURF"
+
+sData$EVTYPE[grepl("TYPHOON|HURRICANE|REMNANTS OF FLOYD",sData$EVTYPE)]<-"HURRICANE"
+
+sData$EVTYPE[grepl("LIGHTNING",sData$EVTYPE)]<-"LIGHTNING"
+```
+
+Consult the remarks to replace four ambiguous events:
+-Wind and Wave
+-Gradient Wind
+-Whirlwind
+-Marine Accident
+
+Added them to their appropriate categories below.
+
+```{r cache = TRUE}
+match("wind")
+sData[sData$EVTYPE=="WIND AND WAVE",c("REMARKS")]
+sData[sData$EVTYPE=="GRADIENT WIND",c("REMARKS")]
+sData[sData$EVTYPE=="WHIRLWIND",c("REMARKS")]
+sData[sData$EVTYPE=="MARINE ACCIDENT",c("REMARKS")]
+
+sData$EVTYPE[grepl("HIGH WIND|^WINDS$|GRADIENT WIND|GUSTY WIND|WIND DAMAGE|GUSTY WINDS|HIGH WINDS|HIGH WIND (G40)|WIND ADVISORY|WIND GUSTS|GUSTY LAKE WIND|WIND AND WAVE|DOWNBURST|MICROBURST",sData$EVTYPE)]<-"HIGH WIND"
+sData$EVTYPE[grepl("^WIND$|^ WIND$|STRONG WINDS|STRONG WIND GUST|WND|WAKE LOW WIND",sData$EVTYPE)]<-"STRONG WIND"
+
+sData$EVTYPE[grepl("^THUNDERSTORM WIND$|GUSTY THUNDERSTORM WINDS|GUSTY THUNDERSTORM WIND|G40",sData$EVTYPE)]<-"THUNDERSTORM WIND"
+sData$EVTYPE[grepl("WHIRLWIND",sData$EVTYPE)]<-"MARINE STRONG WIND"
+sData$EVTYPE[grepl("MARINE ACCIDENT",sData$EVTYPE)]<-"MARINE HIGH WIND"
+sData$EVTYPE[grepl("SEAS$|ROGUE WAVE",sData$EVTYPE)]<-"MARINE THUNDERSTORM WIND"
+
+```
+
+NOAA does not have a Thunderstorm category. In this data, a look at the remarks for Thunderstorms  reveals that the few results of damage and fatalities attributable to Thunderstorms are in fact caused by wind.
+```{r cache = TRUE}
+stm <- sData[grepl("^THUNDERSTORMS$|^TSTM$|COASTAL STORM|COASTALSTORM|^THUNDERSTORM$|SEVERE THUNDERSTORMS|SEVERE THUNDERSTORM", sData$EVTYPE),]
+
+stm[stm$FATALITIES > 0, c("REMARKS")]
+stm[stm$TOTALDMGDOL > 0, c("REMARKS")]
+
+sData$EVTYPE[grepl("^THUNDERSTORMS$|COASTAL STORM|^TSTM$|COASTALSTORM|^THUNDERSTORM$|SEVERE THUNDERSTORMS|SEVERE THUNDERSTORM", sData$EVTYPE)] <- "THUNDERSTORM WIND"
+```
+
+Replace a few more. 
+```{r}
+sData$EVTYPE[grepl("RIP CURRENTS",sData$EVTYPE)]<-"RIP CURRENT"
+
+sData$EVTYPE[grepl("STORM SURGE",sData$EVTYPE)]<-"STORM SURGE/TIDE"
+
+sData$EVTYPE[grepl("TORN",sData$EVTYPE)]<-"TORNADO"
+```
+
+Not sure on what VOG is, so I consult the remarks and Wikipedia. According to Wikipedia:
+>Vog is a form of air pollution that results when sulfur dioxide and other gases and particles emitted by an erupting volcano react with oxygen and moisture in the presence of sunlight. The word is a portmanteau of the words "volcanic", "smog", and "fog". 
+```{r cache = TRUE}
+sData[sData$EVTYPE=="VOG", c("REMARKS")]
+sData$EVTYPE[grepl("VOLCANIC|VOG",sData$EVTYPE)]<-"VOLCANIC ASH"
+```
+
+Replace a couple more.
+```{r}
+sData$EVTYPE[grepl("WATERSPOUT",sData$EVTYPE)]<-"WATERSPOUT"
+
+sData$EVTYPE[grepl("WINTER WEATHER|WINTERY MIX|WINTRY MIX|WINTER MIX|WINTER WEATHER MIX|WINTER WEATHER/MIX",sData$EVTYPE)]<-"WINTER WEATHER"
+```
+
+Consult remarks to find out that Red Flag Criteria is a reference to [wildfires](http://www.srh.noaa.gov/tae/?n=redflag)
+```{r cache = TRUE}
+sData[sData$EVTYPE=="RED FLAG CRITERIA",c("REMARKS")]
+sData$EVTYPE[grepl("FIRE|RED FLAG CRITERIA",sData$EVTYPE)]<-"WILDFIRE"
+```
+
+I am at the end of the list. I check in to see how many matches I have left to make, and to see which EVTYPES are still unmatched. 
+```{r}
+count_unique()
+list_unique(sData$EVTYPE)
+```
+
+None of the summary rows contain information on FATALTIES or DAMAGE—the variables of interest—so will be removed. Other categories that did not fit in anywhere and indicated no damage or fatalities were removed.
+```{r}
+s <- sData[grepl("SUMMARY", sData$EVTYPE),]
+s <- s[,2:6]
+colSums(s)
+sData <- sData[!grepl("SUMMARY|MONTHLY PRECIPITATION|MONTHLY TEMPERATURE", ignore.case=TRUE, sData$EVTYPE),]
+
+sData <- sData[!grepl("NO SEVERE WEATHER|NONE|DROWNING|NORTHERN LIGHTS|OTHER", ignore.case=TRUE, sData$EVTYPE),] 
+```
+
+Final check. I now have all 516 original EVTYPES reduced to the canonical 48 EVTYPES.
+```{r}
+count_unique()
+list_unique(sData$EVTYPE) #should be 0 if all are matched
+```
+## Results
+
+### Economic Effects of Storm Events
+To determine which types of events (as indicated in the EVTYPE variable) are most harmful with respect to the economy, I aggregated the total damage in US Dollars by event type for property damage, crop damage and total damage. These were all combined into a new data frame. The top 10 events with the highest amount of total damage were subsetted and plotted. 
+
+```{r fig.height=7, fig.width=17, cache = TRUE}
+prop <- aggregate(PROPDMGDOL ~ EVTYPE,sData, sum)
+crop <- aggregate(CROPDMGDOL ~ EVTYPE,sData, sum)
+total <- aggregate(TOTALDMGDOL ~ EVTYPE,sData, sum)
+
+
+storm_econ<- join_all(list(prop, crop, total), by = "EVTYPE")
+storm_econ <- storm_econ[order(-storm_econ$TOTALDMGDOL),][1:10,]
+storm_econ<- melt(storm_econ, id=c("EVTYPE"), measure.vars=c("PROPDMGDOL","CROPDMGDOL"))
+storm_econ$EVTYPE <- as.factor(storm_econ$EVTYPE)
+ ggplot(data=storm_econ, aes(EVTYPE, value, fill =variable)) + geom_bar(stat="identity")+xlab("Storm Event") + ylab("Total Damage in US Dollars") + ggtitle("Crop and Property Damage by Storm Event")
+```
+
+### Health Effects of Storm Events
+To determine which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health, I aggregated the total amount of injuries and fatalities by event type. Then I created a new variable TOTAL that combined the total amount of injuries and fatalities. The 10 events with the highest amount of total injuries and fatalities were subsetted and plotted. 
+
+Note that this data only counts fatalities or injuries directly related to the storm. From the Storm Data documentation:
+
+>2.6.1 Direct Fatalities/InjuriesA direct fatality or injury is defined as a fatality or injury directly attributable to the hydro-meteorological event itself, or impact by >airborne/falling/ moving debris, i.e., missiles generated by wind, water, ice, lightning, tornado, etc. In these cases, the weather event was an “active” agent or generated debris which became an active agent.Generalized examples of direct fatalities/injuries would include: 
+1. Thunderstorm wind gust causes a moving vehicle to roll over; 
+2. Blizzard winds topple a tree onto a person; and 
+3. Vehicle is parked on a road, adjacent to a dry arroyo. A flash flood comes down the arroyo and flips over the car. The driver drowns. 
+
+```{r fig.height=7, fig.width=17, cache = TRUE}
+fatalities <- aggregate(FATALITIES ~ EVTYPE,sData, sum)
+injuries <- aggregate(INJURIES ~ EVTYPE,sData, sum)
+
+storm_health <- join_all(list(fatalities, injuries), by = "EVTYPE")
+storm_health$TOTAL <- storm_health$FATALITIES + storm_health$INJURIES
+storm_health <- storm_health[order(-storm_health$TOTAL),][1:10,]
+storm_health <- melt(storm_health, id=c("EVTYPE"), measure.vars=c("FATALITIES","INJURIES"))
+storm_health$EVTYPE <- as.factor(storm_health$EVTYPE)
+ggplot(data=storm_health, aes(EVTYPE, value, fill =variable)) + geom_bar(stat="identity")+xlab("Storm Event") + ylab("Total") + ggtitle("Injuries and Fatalities by Storm Event")
+
+```
+
+## Conclusion 
+Hurricanes caused the most economic damage, with over $87 billion dollars in property and crop damage.  Tornadoes are the most dangerous having caused 1,511 fatalities and 20,667 injuries since 1996.
+
+On the basis of this report, preventative measures aimed at reducing casualties and damage during tornadoes and hurricanes will have the greatest economic and health impacts. 
+
