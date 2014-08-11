@@ -2,6 +2,9 @@
 title: "Cleaning Movement Tracking Data"
 author: "Daniel Maurath"
 date: "June, 2014"
+output:
+  html_document:
+    keep_md: yes
 ---
 ####About
 This was a project for the **Getting and Cleaning Data** course in Coursera's Data Science specialization track. The purpose of the project was to practice cleaning and merging multiple data sets into a single tidy data set.
@@ -23,6 +26,7 @@ Data for this project was provided on the course website and can be downloaded f
 [Data](http://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip)
 
 After the data has been downloaded, place following files into working directory. They will be used to build a cohesive tidy data set:
+
 1. activity_labels.txt 
 2. features.txt 
 3. subject_test.txt 
@@ -34,6 +38,7 @@ After the data has been downloaded, place following files into working directory
 
 ##Construct Tidy Data Set 
 This assignment required a single function, so I have commented the code of the single function instead of breaking the analyses down into a series of annotated steps. In summary, the function:
+
 * reads in and combines `test` and `training` data for subjects
 * reads in and combines `test` and `training` data for features
 * subsets data for only the features that are a measurement of mean or standard deviation

@@ -60,7 +60,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 
 <div id="about" class="section level4">
 <h4>About</h4>
-<p>This was a project for the <strong>Getting and Cleaning Data</strong> course in Coursera’s Data Science specialization track. The purpose of the project was to practice cleaning and merging multiple datasets into a single tidy data set.</p>
+<p>This was a project for the <strong>Getting and Cleaning Data</strong> course in Coursera’s Data Science specialization track. The purpose of the project was to practice cleaning and merging multiple data sets into a single tidy data set.</p>
 </div>
 <div id="synopsis" class="section level2">
 <h2>Synopsis</h2>
@@ -91,11 +91,29 @@ sessionInfo()</code></pre>
 <div id="download-data" class="section level2">
 <h2>Download Data</h2>
 <p>Data for this project was provided on the course website and can be downloaded from the following link: <a href="http://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip">Data</a></p>
-<p>After the data has been downloaded, place following files into working directory. They will be used to build a cohesive tidy data set: 1. activity_labels.txt 2. features.txt 3. subject_test.txt 4. subject_train.txt 5. X_test.txt 6. X_train.txt 7. y_test.txt 8. y_train.txt</p>
+<p>After the data has been downloaded, place following files into working directory. They will be used to build a cohesive tidy data set:</p>
+<ol style="list-style-type: decimal">
+<li>activity_labels.txt</li>
+<li>features.txt</li>
+<li>subject_test.txt</li>
+<li>subject_train.txt</li>
+<li>X_test.txt</li>
+<li>X_train.txt</li>
+<li>y_test.txt</li>
+<li>y_train.txt</li>
+</ol>
 </div>
 <div id="construct-tidy-data-set" class="section level2">
 <h2>Construct Tidy Data Set</h2>
-<p>This assignment required a single function, so I have commented the code of the single function instead of breaking the analyses down into a series of annotated steps. In summary, the function: * reads in and combines <code>test</code> and <code>training</code> data for subjects * reads in and combines <code>test</code> and <code>training</code> data for features * subsets data for only the features that are a measurement of mean or standard deviation * reads in activity labels resulting in a dataset of combines subject,features and activity data * melts and reshapes data * outputs to ordered tidy data set</p>
+<p>This assignment required a single function, so I have commented the code of the single function instead of breaking the analyses down into a series of annotated steps. In summary, the function:</p>
+<ul>
+<li>reads in and combines <code>test</code> and <code>training</code> data for subjects</li>
+<li>reads in and combines <code>test</code> and <code>training</code> data for features</li>
+<li>subsets data for only the features that are a measurement of mean or standard deviation</li>
+<li>reads in activity labels resulting in a data set of combines subject,features and activity data</li>
+<li>melts and reshapes data</li>
+<li>outputs to ordered tidy data set</li>
+</ul>
 <p>With all the data files in your working directory, run the <code>run_analysis</code> function to construct the tidy data set.</p>
 <pre class="r"><code>run_analysis&lt;-function(){
         #Read in subject IDs for train and test set
@@ -153,8 +171,7 @@ sessionInfo()</code></pre>
         tdf &lt;- tdf[,c(2,1,3:68)]
         
         #Output file
-        write.table(tdf,file=&quot;tidy_dataset.txt&quot;)
-        
+        write.table(tdf,file=&quot;tidy_dataset.txt&quot;) 
 }</code></pre>
 </div>
 
