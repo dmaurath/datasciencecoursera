@@ -1,8 +1,6 @@
----
-title: "Plotting Power Consumption"
-author: "Daniel Maurath"
-date: "June, 2014"
----
+# Plotting Power Consumption
+Daniel Maurath  
+June, 2014  
 ###About
 This was the first project for the **Exploratory Data Analysis** course in Coursera's Data Science specialization track. The objective was to practice creating plots by reproducing a series of four plots, and also to practice using github by forking and cloning an existing repository.
 
@@ -35,7 +33,8 @@ from the [UCI web site](https://archive.ics.uci.edu/ml/datasets/Individual+house
 </ol>
 
 ##Data Loading and Preprocessing
-```{r cache=TRUE}
+
+```r
 if(!file.exists("exdata-data-household_power_consumption.zip")) {
         temp <- tempfile()
         download.file("http://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip",temp)
@@ -57,7 +56,8 @@ df$Sub_metering_3 <- as.numeric(as.character(df$Sub_metering_3))
 ![alt text](https://raw.githubusercontent.com/rdpeng/ExData_Plotting1/master/figure/unnamed-chunk-2.png)
 
 ##My Plot 1
-```{r}
+
+```r
 plot1 <- function() {
         hist(df$Global_active_power, main = paste("Global Active Power"), col="red", xlab="Global Active Power (kilowatts)")
         dev.copy(png, file="plot1.png", width=480, height=480)
@@ -66,11 +66,18 @@ plot1 <- function() {
 }
 plot1()
 ```
+
+![plot of chunk unnamed-chunk-2](./Plotting_1_files/figure-html/unnamed-chunk-2.png) 
+
+```
+## Plot1.png has been saved in /Users/dmaurath/Documents/JHDS/datasciencecoursera/Exploratory Data Analysis Projects/Plotting 1
+```
 ##Plot 2
 <img src="https://raw.githubusercontent.com/rdpeng/ExData_Plotting1/master/figure/unnamed-chunk-3.png"/>
 
 ##My Plot 2
-```{r}
+
+```r
 plot1 <- function() {
         plot(df$timestamp,df$Global_active_power, type="l", xlab="", ylab="Global Active Power (kilowatts)")
         dev.copy(png, file="plot2.png", width=480, height=480)
@@ -79,11 +86,18 @@ plot1 <- function() {
 }
 plot1()
 ```
+
+![plot of chunk unnamed-chunk-3](./Plotting_1_files/figure-html/unnamed-chunk-3.png) 
+
+```
+## plot2.png has been saved in /Users/dmaurath/Documents/JHDS/datasciencecoursera/Exploratory Data Analysis Projects/Plotting 1
+```
 ##Plot 3
 <img src="https://raw.githubusercontent.com/rdpeng/ExData_Plotting1/master/figure/unnamed-chunk-4.png"/>
 
 ##My Plot 3
-```{r}
+
+```r
 plot3 <- function() {
         plot(df$timestamp,df$Sub_metering_1, type="l", xlab="", ylab="Energy sub metering")
         lines(df$timestamp,df$Sub_metering_2,col="red")
@@ -96,11 +110,18 @@ plot3 <- function() {
 plot3()
 ```
 
+![plot of chunk unnamed-chunk-4](./Plotting_1_files/figure-html/unnamed-chunk-4.png) 
+
+```
+## plot3.png has been saved in /Users/dmaurath/Documents/JHDS/datasciencecoursera/Exploratory Data Analysis Projects/Plotting 1
+```
+
 ##Plot 4
 <img src="https://raw.githubusercontent.com/rdpeng/ExData_Plotting1/master/figure/unnamed-chunk-5.png"/>
 
 ##My Plot 4
-```{r}
+
+```r
 plot4 <- function() {
         par(mfrow=c(2,2))
         
@@ -124,4 +145,10 @@ plot4 <- function() {
         cat("plot4.png has been saved in", getwd())
 }
 plot4()
+```
+
+![plot of chunk unnamed-chunk-5](./Plotting_1_files/figure-html/unnamed-chunk-5.png) 
+
+```
+## plot4.png has been saved in /Users/dmaurath/Documents/JHDS/datasciencecoursera/Exploratory Data Analysis Projects/Plotting 1
 ```
