@@ -14,7 +14,7 @@ Collection of work for the [Coursera John Hopkins Data Science Specialization](h
 	* `github`: [Cleaning Movement Tracking Data](http://github.com/dmaurath/datasciencecoursera/blob/master/Getting%20and%20Cleaning%20Data%20Project/README.md)
 	* `rpubs`: [Cleaning Movement Tracking Data](http://rpubs.com/dmaurath/24645)
 
-4.Exploratory Data Analysis: [complete](http://www.coursera.org/records/Y2asUJemzveuzWTu)
+4. Exploratory Data Analysis: [complete](http://www.coursera.org/records/Y2asUJemzveuzWTu)
 
 	 Course Project 1
 
@@ -26,7 +26,7 @@ Collection of work for the [Coursera John Hopkins Data Science Specialization](h
 	* `github`: [Coal Emissions](http://github.com/dmaurath/datasciencecoursera/blob/master/Exploratory%20Data%20Analysis%20Projects/Plotting%202/README.md)
 	* `rpubs`: [Coal Emissions](http://rpubs.com/dmaurath/24640)
 
-5.Reproducible Research: [complete]
+5. Reproducible Research: [complete]
 
 	Course Project 1
 
