@@ -40,12 +40,12 @@ Collection of work for the [Coursera John Hopkins Data Science Specialization](h
 
 - Statistical Inference: [complete]
 
-- Regression Models: in progress
+- Regression Models: [in progress]
 
-- Practical Machine Learning: sept 2014
+- Practical Machine Learning: [sept 2014]
 
-- Developing Data Products: sept 2014
+- Developing Data Products: [sept 2014]
 
-- Data Science Capstone: oct 2014
+- Data Science Capstone: [oct 2014]
 
 
