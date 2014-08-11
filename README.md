@@ -38,14 +38,14 @@ Collection of work for the [Coursera John Hopkins Data Science Specialization](h
 	* `github`: [Health and Economic Implications of Storms](http://github.com/dmaurath/datasciencecoursera/blob/master/Reproducible%20Research%20Projects/Peer%20Assessment%202/README.md)
 	* `rpubs`: [Health and Economic Implications of Storms](http://rpubs.com/dmaurath/24031)
 
-6.Statistical Inference: [complete]
+6. Statistical Inference: [complete]
 
-7.Regression Models: in progress
+7. Regression Models: in progress
 
-9.Practical Machine Learning: sept 2014
+9. Practical Machine Learning: sept 2014
 
-10.Developing Data Products: sept 2014
+10. Developing Data Products: sept 2014
 
-11.Data Science Capstone: oct 2014
+11. Data Science Capstone: oct 2014
 
 
