@@ -26,7 +26,7 @@ Collection of work for the [Coursera John Hopkins Data Science Specialization](h
 	* `github`: [Coal Emissions](http://github.com/dmaurath/datasciencecoursera/blob/master/Exploratory%20Data%20Analysis%20Projects/Plotting%202/README.md)
 	* `rpubs`: [Coal Emissions](http://rpubs.com/dmaurath/24640)
 
-- Reproducible Research: (http://www.coursera.org/records/bNbrdwMHkyvCmFKr)[complete]
+- Reproducible Research: [complete](http://www.coursera.org/records/bNbrdwMHkyvCmFKr)
 
 	Course Project 1
 
