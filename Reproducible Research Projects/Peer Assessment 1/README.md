@@ -82,7 +82,6 @@ plot(steps_by_interval$interval,steps_by_interval$steps, type="l", xlab="Interva
 max_interval <- steps_by_interval[which.max(steps_by_interval$steps),1]
 ```
 
-The 5-minute interval, on average across all the days in the data set, containing the maximum number of steps is 835.
 
 ## Impute missing values. Compare imputed to non-imputed data.
 Missing data needed to be imputed. Only a simple imputation approach was required for this assignment. 
